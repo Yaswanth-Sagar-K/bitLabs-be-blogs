@@ -6,6 +6,7 @@ import java.util.Random;
 
 import com.talentstream.exception.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,33 @@ public class RegisterService {
         return loginDTO.getPassword() == null || loginDTO.getPassword().isEmpty();
     }
 
-   
+    // public Applicant googleSignIn(String email) {
+    // // Implement logic to find the user by email (assuming email is unique)
+    // // For Google Sign-In, you won't have a password, so no need to match
+    // passwords
+    // Applicant applicant=null;
+    // try {
+    // applicant= applicantRepository.findByEmail(email);
+    // if(applicant==null) {
+    // Applicant applicant1=new Applicant();
+    // applicant1.setEmail(email);
+    // applicantRepository.save(applicant1);
+    // return applicant1;
+    // }else {
+    // return applicant;
+    // }
+    //// System.out.println("able to return applicant");
+    //// System.out.println(applicant.getEmail());
+    // }
+    // catch(Exception e) {
+    // System.out.println(e.getMessage());
+    // }
+    // System.out.println("checking ");
+    // System.out.println("able to return applicant");
+    // System.out.println(applicant.getEmail());
+    // return applicant;
+    // }
+
     public Applicant googleSignIn(String email, String utmSource) {
         Applicant applicant = null;
 
@@ -76,15 +103,8 @@ public class RegisterService {
                 // If the applicant does not exist, create a new one
                 Applicant newApplicant = new Applicant();
                 newApplicant.setEmail(email);
-                if("bitlabs.in/jobs".equals(utmSource)) {
-                	newApplicant.setUtmSource("Web login");
-                }
-                else if (utmSource == null || utmSource.trim().isEmpty()) {
-                	newApplicant.setUtmSource("Mobile login");
-                }
-                else {                	
-                	newApplicant.setUtmSource(utmSource);
-                }                // newApplicant.setAppicantStatus("Active");
+                newApplicant.setUtmSource(utmSource);
+                // newApplicant.setAppicantStatus("Active");
                 // Generate a random number as the password
                 String randomPassword = generateRandomPassword();
                 newApplicant.setPassword(passwordEncoder.encode(randomPassword));
@@ -94,13 +114,8 @@ public class RegisterService {
 
                 // Save the new applicant
                 Applicant applicant1 = applicantRepository.save(newApplicant);
-                if ("bitlabs.in/jobs".equals(utmSource)) {
-                    applicant1.setUtmSource("Web login");
-                } else if (utmSource == null || utmSource.trim().isEmpty()) {
-                    applicant1.setUtmSource("Mobile login");
-                } else {
-                    applicant1.setUtmSource(utmSource);
-                }                System.out.println("User resume ID: ");
+                applicant1.setUtmSource("first time");
+                System.out.println("User resume ID: ");
                 ResumeRegisterDto resume = new ResumeRegisterDto();
                 // String[] nameParts = applicant1.getName().toLowerCase().split("\\s+");
 
@@ -112,12 +127,43 @@ public class RegisterService {
                 resume.setEmail(applicant1.getEmail().toLowerCase());
                 resume.setPassword(applicant1.getPassword());
                 resume.setLocale("en-US");
-               
+                // Prepare headers
+                // HttpHeaders headers = new HttpHeaders();
+                // headers.setContentType(MediaType.APPLICATION_JSON);
+                //
+                //// System.setProperty("javax.net.ssl.trustStoreType", "null");
+                // // Create HttpEntity with headers and resume body
+                // HttpEntity<ResumeRegisterDto> requestEntity = new HttpEntity<>(resume,
+                // headers);
+                //
+                //
+                // // Define the endpoint URL
+                // String resumeRegisterUrl =
+                // "https://resume.bitlabs.in:5173/api/auth/register";
+                //
+                // try {
+                //
+                // // Make POST request
+                // ResponseEntity<String> response =
+                // restTemplate.postForEntity(resumeRegisterUrl, requestEntity, String.class);
+                //
+                // // Parse the JSON response
+                // Gson gson = new Gson();
+                // JsonObject jsonResponse = gson.fromJson(response.getBody(),
+                // JsonObject.class);
+                //
+                // // Access the nested ID field
+                // String userId = jsonResponse.getAsJsonObject("user").get("id").getAsString();
+                //
+                // // Print the ID
+                // System.out.println("User resume ID: " + userId);
                 applicant1.setResumeId(String.valueOf(applicant1.getId()));
                 applicantRepository.save(applicant1);
                 System.out.println("Applicant updated");
 
-              
+                // }catch(Exception e) {
+                // System.out.println(e.getMessage());
+                // }
 
                 return applicant1;
             } else {
@@ -141,7 +187,23 @@ public class RegisterService {
         return String.valueOf(randomPassword);
     }
 
-   
+    // public Applicant login1(String email) {
+    // System.out.println("Login is Mached "+email);
+    // try {
+    // Applicant applicant = applicantRepository.findByEmail(email);
+    // if (applicant != null && passwordEncoder.matches(password,
+    // applicant.getPassword())) {
+    // return applicant;
+    // } else {
+    // return null;
+    // }
+    // }
+    // catch(Exception e)
+    // {
+    // System.out.println(e.getMessage());
+    // return null;
+    // }
+    // }
 
     public Applicant findById(Long id) {
         try {
@@ -227,12 +289,43 @@ public class RegisterService {
             resume.setEmail(applicant1.getEmail().toLowerCase());
             resume.setPassword(applicant1.getPassword());
             resume.setLocale("en-US");
-          
+            // Prepare headers
+            // HttpHeaders headers = new HttpHeaders();
+            // headers.setContentType(MediaType.APPLICATION_JSON);
+            //
+            // System.setProperty("javax.net.ssl.trustStoreType", "null");
+            // // Create HttpEntity with headers and resume body
+            // HttpEntity<ResumeRegisterDto> requestEntity = new HttpEntity<>(resume,
+            // headers);
+            //
+            //
+            // // Define the endpoint URL
+            // String resumeRegisterUrl =
+            // "https://resume.bitlabs.in:5173/api/auth/register";
+            //
+            // try {
+            //
+            // // Make POST request
+            // ResponseEntity<String> response =
+            // restTemplate.postForEntity(resumeRegisterUrl, requestEntity, String.class);
+            //
+            // // Parse the JSON response
+            // Gson gson = new Gson();
+            // JsonObject jsonResponse = gson.fromJson(response.getBody(),
+            // JsonObject.class);
+            //
+            // // Access the nested ID field
+            // String userId = jsonResponse.getAsJsonObject("user").get("id").getAsString();
+            //
+            // // Print the ID
+            // System.out.println("User resume ID: " + userId);
             applicant1.setResumeId(String.valueOf(applicant1.getId()));
             applicantRepository.save(applicant1);
             System.out.println("Applicant updated");
 
-            
+            // }catch(Exception e) {
+            // System.out.println(e.getMessage());
+            // }
             return ResponseEntity.ok("Applicant registered successfully");
         } catch (CustomException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -249,7 +342,7 @@ public class RegisterService {
     public void addApplicant(Applicant applicant) {
         try {
             Applicant applicant1 = applicantRepository.save(applicant);
-            //requestPasswordReset(applicant1);
+            requestPasswordReset(applicant1);
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -269,39 +362,56 @@ public class RegisterService {
         return applicant;
     }
 
-   
-    public ResponseEntity<String> authenticateUser(long id, String oldPassword, String newPassword) {
-    	 
-		try {
-			Applicant opUser = applicantRepository.findById(id);
-			if (opUser == null) {
- 
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with given id");
-			}
- 
-			if (!passwordEncoder.matches(oldPassword, opUser.getPassword())) {
- 
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-						.body("Your old password not matching with data base password");
-			}
- 
-			if (passwordEncoder.matches(newPassword, opUser.getPassword())) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-						.body("your new password should not be same as old password");
-			}
- 
-			opUser.setPassword(passwordEncoder.encode(newPassword));
-			Applicant savedUser = applicantRepository.save(opUser);
- 
-			return ResponseEntity.status(HttpStatus.OK).body("Password updated and stored");
- 
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Error occurred while updating password");
- 
-		}
-	}
+    public String authenticateUser(long id, String oldPassword, String newPassword) {
+        // BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+
+        try {
+            // Applicant opUser = applicantRepository.findById(id);
+            Applicant opUser = applicantRepository.findById(id);
+            // System.out.println(passwordEncoder.encode(oldPassword));
+            // if (opUser != null) {
+            // if(passwordEncoder.matches(oldPassword, opUser.getPassword())) {
+            // if (passwordEncoder.matches(newPassword, opUser.getPassword())) {
+            // return "your new password should not be same as old password";
+            // }
+            // opUser.setPassword(passwordEncoder.encode(newPassword));
+            // applicantRepository.save(opUser);
+            //
+            // return "Password updated and stored";
+            // }
+            // else {
+            // return "Your old password not matching with data base password";
+            // }
+            //
+            //
+            //
+            // }
+            if (opUser != null) {
+                if (passwordEncoder.matches(oldPassword, opUser.getPassword())) {
+                    if (passwordEncoder.matches(newPassword, opUser.getPassword())) {
+                        return "your new password should not be same as old password";
+                    }
+                    opUser.setPassword(passwordEncoder.encode(newPassword));
+                    Applicant opUser1 = applicantRepository.save(opUser);
+                    requestPasswordReset(opUser1);
+
+                    return "Password updated and stored";
+                } else {
+                    return "Your old password not matching with data base password";
+                }
+            } else {
+                return "User not found with given id";
+            }
+        }
+
+        catch (Exception e) {
+
+            e.printStackTrace();
+
+            return "user not found with this given id";
+        }
+
+    }
 
     public String requestPasswordReset(Applicant opUser) {
         // Prepare headers
@@ -390,37 +500,5 @@ public class RegisterService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating applicant");
         }
     }
-
-    public void closeAccount(Long id) {
- 
-		Applicant applicant = applicantRepository.findById(id);
- 
-		if (applicant == null) {
-			throw new CustomException("Applicant not found", HttpStatus.NOT_FOUND);
-		}
- 
-		String email = applicant.getEmail();
-		String mobile = applicant.getMobilenumber();
- 
-		boolean isEmailDeleted = email.endsWith("_deleted");
-		boolean isMobileDeleted = mobile != null && mobile.startsWith("0");
- 
-		
-		if (isEmailDeleted && (mobile == null || isMobileDeleted)) {
-			throw new CustomException("Account already deleted", HttpStatus.BAD_REQUEST);
-		}
- 
-		
-		if (!isEmailDeleted) {
-			applicant.setEmail(email + "_deleted");
-		}
- 		
-		if (mobile == null || !mobile.startsWith("0")) {
-			applicant.setMobilenumber(mobile == null ? "0" : "0" + mobile);
-		}
- 
-		applicantRepository.save(applicant);
-	}
- 
 
 }

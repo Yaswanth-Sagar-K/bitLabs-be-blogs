@@ -32,24 +32,13 @@ public class ApplyJob {
 	@Column(columnDefinition = "TIMESTAMP")
 	private LocalDateTime applicationDate;
 	@Column(nullable = false)
-	private String applicantStatus;
+	private String applicantStatus = "New";
 	@OneToMany(mappedBy = "applyJob", cascade = CascadeType.ALL)
 	@JsonManagedReference
 	private List<ScheduleInterview> scheduleInterviews;
 
 	@Column(columnDefinition = "TIMESTAMP")
 	private LocalDateTime changeDate;
-
-	@Column(columnDefinition = "TEXT")
-	private String reason;
-
-	public String getReason() {
-		return reason;
-	}
-
-	public void setReason(String reason) {
-		this.reason = reason;
-	}
 
 	public LocalDateTime getChangeDate() {
 		return changeDate;

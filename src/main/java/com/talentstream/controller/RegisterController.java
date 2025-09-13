@@ -512,12 +512,12 @@ public class RegisterController {
 			decryptedOldPassword = decrypt1(passwordRequest.getOldPassword(), passwordRequest.getIvOld(), secretKey);
 			decryptedNewPassword = decrypt1(passwordRequest.getNewPassword(), passwordRequest.getIvNew(), secretKey);
 		} catch (Exception e) {
-	        e.printStackTrace();
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Password decryption failed");
-	    }
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-	    ResponseEntity<String> result = regsiterService.authenticateUser(id, decryptedOldPassword, decryptedNewPassword);
-	    return result;
+		String result1 = regsiterService.authenticateUser(id, decryptedOldPassword, decryptedNewPassword);
+		return ResponseEntity.ok(result1);
 	}
 
 	private String decrypt1(String encryptedPassword, String iv, String secretKey) throws Exception {
@@ -570,20 +570,5 @@ public class RegisterController {
 		String resumeId = applicant.getResumeId();
 		return ResponseEntity.ok(resumeId);
 	}
-
-	@PutMapping("/closeAccount/{id}")
-    public ResponseEntity<String> closeAccount(@PathVariable Long id) {
- 
-        try {
-        	logger.info("Got Applicant ID :"+id +" to delete account");
-        	registerService.closeAccount(id);
-            return ResponseEntity.ok("Applicant account closed successfully");
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus()).body(e.getMessage());
-        }
-        catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
 
 }
