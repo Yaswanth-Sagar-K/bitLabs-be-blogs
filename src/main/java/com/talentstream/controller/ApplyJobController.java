@@ -24,10 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.talentstream.dto.AlertsDTO;
 import com.talentstream.dto.GetJobDTO;
 import com.talentstream.dto.ScheduleInterviewDTO;
-import com.talentstream.dto.UpdateJobStatusDTO;
 import com.talentstream.entity.Alerts;
 import com.talentstream.entity.Applicant;
 import com.talentstream.entity.ApplicantJobInterviewDTO;
@@ -55,8 +53,6 @@ public class ApplyJobController {
 
 	@Autowired
 	private RegisterRepository applicantRepository;
-	
-	
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplyJobController.class);
 
@@ -107,6 +103,11 @@ public class ApplyJobController {
 				logger.info("No applied jobs found for applicantId: {}", applicantId);
 				return ResponseEntity.noContent().build();
 			}
+			 List<GetJobDTO> savedJobsDTOList = appliedJobsPage.stream().map(job -> {
+	            	GetJobDTO jobDTO = modelMapper.map(job, GetJobDTO.class);               
+	                return jobDTO;
+	            }).collect(Collectors.toList()); // Convert stream to list
+ 
 			logger.info("Retrieved applied jobs successfully for applicantId: {}", applicantId);
 			return ResponseEntity.ok(appliedJobsPage.getContent()); // Extract List from Page
 		} catch (CustomException e) {
@@ -220,16 +221,16 @@ public class ApplyJobController {
 		}
 	}
 
-
-	
-	
-	@PutMapping("/recruiters/applyjob-update-status/{applyJobId}")
+	@PutMapping("/recruiters/applyjob-update-status/{applyJobId}/{newStatus}")
 	public ResponseEntity<String> updateApplicantStatus(
-			@PathVariable Long applyJobId,@RequestBody UpdateJobStatusDTO  dto) {
+			@PathVariable Long applyJobId,
+			@PathVariable String newStatus) {
 		try {
-			logger.info("Request received to update applicant status for applyJobId: {} to status: {}", applyJobId);
-			String updateMessage = applyJobService.updateApplicantStatus(applyJobId,dto.getNewStatus(),dto.getReason());
-			logger.info("Applicant status updated successfully for applyJobId: {} to status: {}", applyJobId);
+			logger.info("Request received to update applicant status for applyJobId: {} to status: {}", applyJobId,
+					newStatus);
+			String updateMessage = applyJobService.updateApplicantStatus(applyJobId, newStatus);
+			logger.info("Applicant status updated successfully for applyJobId: {} to status: {}", applyJobId,
+					newStatus);
 			return ResponseEntity.ok(updateMessage);
 		} catch (CustomException e) {
 			logger.error("Error updating applicant status for applyJobId {}: {}", applyJobId, e.getMessage());
@@ -386,10 +387,12 @@ public class ApplyJobController {
 	}
 
 	@GetMapping("/applicant/job-alerts/{applicantId}")
-	public ResponseEntity<List<AlertsDTO>> getAlerts(@PathVariable long applicantId) {
+	public ResponseEntity<List<Alerts>> getAlerts(@PathVariable long applicantId) {
 		try {
 			logger.info("Request received to get job alerts for applicant {}", applicantId);
-			List<AlertsDTO> notifications = applyJobService.getAlertsByApplicantId(applicantId);
+			List<Alerts> notifications = applyJobService.getAlerts(applicantId);
+			// Reset alertCount to zero when fetching alerts
+			applyJobService.resetAlertCount(applicantId);
 			logger.info("Retrieved job alerts successfully for applicant {}", applicantId);
 			return ResponseEntity.ok(notifications);
 		} catch (EntityNotFoundException e) {
@@ -491,20 +494,5 @@ public class ApplyJobController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
 		}
 	}
-	
-	  @DeleteMapping("/alert/delete/{alertsId}")
-	    public ResponseEntity<String> deleteAlertById(@PathVariable long alertsId) {
-	        try {
-	            boolean deleted = applyJobService.deleteAlertById(alertsId);
-	            if (deleted) {
-	                return ResponseEntity.ok("Alert deleted successfully.");
-	            } else {
-	                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Alert not found.");
-	            }
-	        } catch (Exception e) {
-	            logger.error("Unexpected error deleting alert with ID {}: {}", alertsId, e);
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred.");
-	        }
-	    }
 
 }

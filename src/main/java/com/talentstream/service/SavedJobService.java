@@ -80,16 +80,16 @@ public class SavedJobService {
  
         try {
             // Fetch job IDs for the applicant (with pagination)
-        	Page<GetJobDTO> savedJobs = savedJobRepository.findByApplicantId(applicantId,pageable );
+            List<Long> savedJobIds = savedJobRepository.findSavedJobIdsByApplicantId(applicantId);
  
-            if (savedJobs.isEmpty()) {
+            if (savedJobIds.isEmpty()) {
                 return Page.empty(pageable); // Return an empty page if no job IDs found
             }
  
             // Apply pagination directly in the repository query
-//            Page<GetJobDTO> jobs = jobRepository.findJobsByIds(savedJobIds, pageable);
+            Page<GetJobDTO> jobs = jobRepository.findJobsByIds(savedJobIds, pageable);
  
-            return savedJobs;
+            return jobs;
  
         } catch (Exception e) {
             e.printStackTrace();

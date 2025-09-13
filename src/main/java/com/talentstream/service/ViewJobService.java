@@ -141,9 +141,6 @@ public class ViewJobService {
         // Check if the applicant has already applied
         ApplyJob applyJob = applyJobService.getByJobAndApplicant(jobId, applicantId);
         jobDTO.setJobStatus((applyJob != null) ? "Already Applied" : "Apply now");
-       if (applyJob != null) {
-            jobDTO.setApplyJobId(applyJob.getApplyjobid());
-        }
         return ResponseEntity.ok(jobDTO);
     }
 

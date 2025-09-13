@@ -67,7 +67,7 @@ public interface ApplyJobRepository extends JpaRepository<ApplyJob, Long> {
 			@Param("location") String location,
 			@Param("skillName") String skillName);
 
-	@Query("SELECT COUNT(a) FROM ApplyJob a WHERE a.applicant.id = :applicantId AND a.applicantStatus <> 'Visited'")
+	@Query("SELECT COUNT(a) FROM ApplyJob a WHERE a.applicant.id = :applicantId")
 	long countByApplicantId(@Param("applicantId") long applicantId);
 
 	@Query(value = "SELECT COUNT(*) FROM apply_job aj " +
@@ -90,8 +90,8 @@ public interface ApplyJobRepository extends JpaRepository<ApplyJob, Long> {
 		       "aj.job.creationDate, aj.job.location, aj.job.jobRecruiter.companyname) " +
 		       "FROM ApplyJob aj " +
 		       "WHERE aj.applicant.id = :applicantId " +
-		       "AND aj.applicantStatus <> 'Visited' " +
-		       "ORDER BY aj.applicationDate DESC")
+		       "ORDER BY aj.job.id ASC")
 		Page<GetJobDTO> findByApplicantId(@Param("applicantId") long applicantId, Pageable pageable);
+
 
 }
