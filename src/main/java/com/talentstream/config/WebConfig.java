@@ -31,7 +31,6 @@ public class WebConfig {
         config.addAllowedOrigin("https://talent-stream-front-end-version2-eedekarunakar.vercel.app");
         config.addAllowedOrigin("https://d1sq67t1c2pewz.cloudfront.net");
         config.addAllowedOrigin("https://talentstream-deployment-bucket.s3.amazonaws.com");
-        config.addAllowedOrigin("https://bitlabs-opgw-kcn426q61-mukeswar-143s-projects.vercel.app");
 
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.AUTHORIZATION,

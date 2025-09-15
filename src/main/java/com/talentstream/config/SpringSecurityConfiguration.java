@@ -70,8 +70,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						"/team/teammembers/{recruiterId}", "/team/{teamMemberId}",
 						"/team/{teamMemberId}/reset-password", "/job/recruiterscountjobs/{recruiterId}")
 				.hasAnyRole("JOBRECRUITER")
-				.antMatchers("/jobVisit/applicant/track-visit", "/skill-badges/{id}/skill-badges", "/skill-badges/save",
-						"/savedjob/applicants/deletejob/{applicantId}/{jobId}", "/applicant/{id}/profilestatus",
+				.antMatchers("/jobVisit/applicant/track-visit","/skill-badges/{id}/skill-badges","/skill-badges/save","/savedjob/applicants/deletejob/{applicantId}/{jobId}", "/applicant/{id}/profilestatus",
 						"/applicantprofile/{applicantId}/profile-view", "/applicantprofile/updateprofile/{applicantid}",
 						"/viewjob/applicant/viewjob/{jobId}/{applicantId}",
 						"/applicantprofile/createprofile/{applicantid}", "/applicantprofile/getdetails/{applicantid}",
@@ -80,25 +79,23 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						"/recommendedjob/findrecommendedjob/{applicantId}", "/appicant/viewApplicants",
 						"/savedjob/applicants/savejob/{applicantId}/{jobId}", "/savedjob/getSavedJobs/{applicantId}",
 						"/searchjob/applicant/searchjobbyskillname/{applicantId}/jobs/{skillName}",
-						"/videos/recommended/{applicantId}",
 						"/viewjob/applicant/viewjob/{jobId}", "/applicant-pdf/getresume/{applicantId}",
 						"/applicant-pdf/{applicantId}/upload", "/applicant-image/{applicantId}/upload",
-						"/api/video-watch/track",
+						"/applicant/closeAccount/{id}",
+						"/applyjob/alert/delete/{alertsId}",
 						"/applicant-image/getphoto/{applicantId}")
 				.hasAnyRole("JOBAPPLICANT")
-				.antMatchers("/resume/retryResumeRegistration", "/resume/pdf/{id}", "/applicant/getApplicantById/{id}",
-						"/send-message", "/health",
+				.antMatchers("/resume/retryResumeRegistration","/resume/pdf/{id}", "/applicant/getApplicantById/{id}", "/send-message", "/health",
 						"/applicant/signOut", "/forgotpassword/recuriterverify-otp",
 						"/forgotpassword/recuritersend-otp",
 						"/forgotpassword/recuriterreset-password/set-new-password/{email}",
-						"/recuriters/saverecruiters", "/recuriters/recruiterLogin", "/recuriters/registration-send-otp",
+						"/applyjob/applicant/mark-alert-as-seen/{alertsId}",
+						"/recuriters/saverecruiters", "/recuriters/recruiterLogin", "/recuriters/registration-send-otp","/api/gemini/chat",
 						"/applicant/saveApplicant", "/applicant/applicantLogin", "/applicant/applicantsendotp",
+
 						"/applicant/applicantverify-otp", "/applicant/applicantreset-password/{email}",
-						"/videos/upload",
 						"/applicant/applicantsignOut", "/applicant/forgotpasswordsendotp", "/swagger-ui/**",
-						"/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/getAllJobs",
-						"/api/zoho/submit-lead", "/zoho/create-lead", "/zoho/update/{recordId}",
-						"/zoho/searchlead/{email}")
+						"/v3/api-docs/**", "/swagger-resources/**", "/webjars/**","/getAllJobs","/api/zoho/submit-lead","/zoho/create-lead","/zoho/update/{recordId}","/zoho/searchlead/{email}")
 				.permitAll()
 				// Additional antMatchers for Swagger
 				.antMatchers(HttpMethod.GET, "/v2/api-docs", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**")

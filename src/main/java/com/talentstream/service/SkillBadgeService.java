@@ -1,5 +1,17 @@
 package com.talentstream.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -9,23 +21,13 @@ import org.springframework.stereotype.Service;
 import com.talentstream.dto.ApplicantSkillBadgeDTO;
 import com.talentstream.entity.Applicant;
 import com.talentstream.entity.ApplicantProfile;
-import com.talentstream.entity.SkillBadge;
 import com.talentstream.entity.ApplicantSkillBadge;
 import com.talentstream.entity.ApplicantSkills;
+import com.talentstream.entity.SkillBadge;
 import com.talentstream.repository.ApplicantProfileRepository;
 import com.talentstream.repository.ApplicantRepository;
 import com.talentstream.repository.ApplicantSkillBadgeRepository;
 import com.talentstream.repository.SkillBadgeRepository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-
-
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
 
 @Service
 public class SkillBadgeService {
@@ -122,7 +124,32 @@ public class SkillBadgeService {
 
         // Create and populate DTO
         ApplicantSkillBadgeDTO applicantSkillBadgeDTO = new ApplicantSkillBadgeDTO();
-        applicantSkillBadgeDTO.setApplicantSkillBadges(applicantSkills); // Set applicant's skill badges
+     // 1. PASSED badges — group by skill name, pick the latest one if multiple
+        Map<String, ApplicantSkillBadge> passedMap = applicantSkills.stream()
+            .filter(b -> "PASSED".equalsIgnoreCase(b.getStatus()))
+            .collect(Collectors.toMap(
+                b -> b.getSkillBadge().getName().toLowerCase(),
+                b -> b,
+                (b1, b2) -> b1.getTestTaken().isAfter(b2.getTestTaken()) ? b1 : b2
+            ));
+        List<ApplicantSkillBadge> passedList = new ArrayList<>(passedMap.values());
+
+     // 2. FAILED badges — exclude skills already in passedMap, sort by time DESC
+        List<ApplicantSkillBadge> failedList = applicantSkills.stream()
+            .filter(b -> "FAILED".equalsIgnoreCase(b.getStatus()))
+            .filter(b -> !passedMap.containsKey(b.getSkillBadge().getName().toLowerCase()))
+            .sorted(Comparator.comparing(ApplicantSkillBadge::getTestTaken)) // ASCENDING
+            .collect(Collectors.toList());
+
+
+        // Combine both lists
+        List<ApplicantSkillBadge> finalSkillBadges = new ArrayList<>();
+        finalSkillBadges.addAll(passedList);
+        finalSkillBadges.addAll(failedList);
+
+        // Set sorted list to DTO
+        applicantSkillBadgeDTO.setApplicantSkillBadges(finalSkillBadges);
+
         applicantSkillBadgeDTO.setSkillsRequired(allSkills); // Set the required skills
 
         // Return the response entity with the populated DTO
