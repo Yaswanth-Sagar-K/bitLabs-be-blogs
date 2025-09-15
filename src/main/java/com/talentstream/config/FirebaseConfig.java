@@ -16,17 +16,26 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void initFirebase() throws IOException {
+        String renderPath = "/etc/secrets/firebase-services-account.json";
+        String localPath = "src/main/resources/firebase-services-account.json";
+
+        String pathToUse;
+
+        if (new File(renderPath).exists()) {
+            pathToUse = renderPath; 
+        } else {
+            pathToUse = localPath;  
+        }
+
+        FileInputStream serviceAccount = new FileInputStream(pathToUse);
+
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .build();
+
         if (FirebaseApp.getApps().isEmpty()) {
-            try (FileInputStream serviceAccount =
-                         new FileInputStream("src/main/resources/firebase-services-account.json")) {
-
-                FirebaseOptions options = FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                        .build();
-
-                FirebaseApp.initializeApp(options);
-                System.out.println("✅ Firebase initialized successfully!");
-            }
+            FirebaseApp.initializeApp(options);
         }
     }
 }
+
