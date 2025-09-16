@@ -32,8 +32,8 @@ public class BlogService {
 
     private final RestTemplate restTemplate;
     private final BlogRepository blogRepository;
-    private final BlogEmailService blogEmailService;
     private final ObjectMapper mapper;
+    private final FirebaseMessagingService firebaseMessagingService;
 
     @Value("${newsapi.key}")
     private String apiKey;
@@ -41,11 +41,11 @@ public class BlogService {
     @Value("${gemini.api.key}")
     private String geminiKey;
 
-    public BlogService(BlogRepository blogRepository, BlogEmailService blogEmailService) {
+    public BlogService(BlogRepository blogRepository, FirebaseMessagingService firebaseMessagingService) {
         this.blogRepository = blogRepository;
-        this.blogEmailService = blogEmailService;
         this.restTemplate = new RestTemplate();
         this.mapper = new ObjectMapper();
+        this.firebaseMessagingService= firebaseMessagingService;
     }
 
     public void fetchAndSaveTechNews() {
@@ -53,8 +53,7 @@ public class BlogService {
             String url = buildNewsApiUrl();
 
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            System.out.println("Response---------------------------------:"+response);
-
+            
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 System.err.println("Failed to fetch news. Status: " + response.getStatusCode());
                 return;
@@ -81,8 +80,6 @@ public class BlogService {
             }
 
 
-            blogEmailService.sendNewsUpdateNotification();
-
         } catch (Exception e) {
             System.err.println("An error occurred while fetching or saving news: " + e.getMessage());
             e.printStackTrace();
@@ -91,20 +88,23 @@ public class BlogService {
 
     private String buildNewsApiUrl() {
         LocalDate today = LocalDate.now();
-        LocalDate threeDaysAgo = today.minusDays(4);
+        LocalDate threeDaysAgo = today.minusDays(3);
 
-        String query = URLEncoder.encode("Software OR Artificial Intelligence", StandardCharsets.UTF_8);
+        String query = URLEncoder.encode("Software OR Artificial Intelligence OR TECHNOLOGY", StandardCharsets.UTF_8);
 
         return NEWS_BASE_URL
-                + "?q=" + query
-                + "&domains=techcrunch.com,theverge.com,wired.com"
-                + "&language=en"
-                + "&sortBy=popularity" 
+                + "?apiKey=" + apiKey
+                + "&q=" + query
+                + "&searchIn=title,description"
+                + "&domains=techcrunch.com,wired.com,theverge.com,engadget.com"
                 + "&from=" + threeDaysAgo
                 + "&to=" + today
-                + "&pageSize=5"
-                + "&apiKey=" + apiKey;
+                + "&language=en"
+                + "&sortBy=publishedAt"
+                + "&pageSize=10"
+                + "&page=1";
     }
+
 
     private Blog mapArticleToBlog(JsonNode article) {
         String title = article.path("title").asText();
@@ -216,13 +216,24 @@ public class BlogService {
             
             blog.setActive(active);
             blogRepository.save(blog);
+            String title = "New Blog Update Today!";
+            String body = "Check out the latest blog updates added today.";
+           try {
+        	   String result= firebaseMessagingService.sendNotificationToAll(title, body);
+        	   System.out.println("result:" +result);
+           }
+           catch(Exception e){
+        	  System.out.println(e.getMessage());
+           }
+         
+         
             return ResponseEntity.ok("Blog updated successfully with id: " + id);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Blog not found with id: " + id);
         }      
 		}
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the blog with id: " + id);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the blog with id: " + e.getMessage());
         }
 		
 	}

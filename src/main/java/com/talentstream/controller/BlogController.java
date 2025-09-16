@@ -20,19 +20,16 @@ public class BlogController {
         this.blogService = blogService;
     }
 
-   //get all active blogs 
     @GetMapping("/active")
     public ResponseEntity<?> getActiveBlogs() {
         return blogService.getActiveBlogs();
     }
     
-    //reset all to activity status to false
     @GetMapping("/all")
     public ResponseEntity<?> getAllBlogs() {
         return blogService.getAllBlogs();
     }
 
-    // get all inactive blogs
     @GetMapping("/inactive")
     public ResponseEntity<?> getInActiveBlogs() {
         return blogService.getInActiveBlogs();

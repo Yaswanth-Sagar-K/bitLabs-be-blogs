@@ -17,12 +17,8 @@ public class BlogScheduler {
         this.blogService = blogService;
     }
 
-//    // Every Monday & Thursday at 9 AM
-//    @Scheduled(cron = "0 0 9 ? * MON,THU")
-    
- // Runs every 2 minutes
-    @Scheduled(fixedRate = 120000) // 2 min = 120,000 ms
-    public void fetchTechNewsEveryTwoMinutes() {
+    @Scheduled(cron = "0 0 10 * * ?")
+    public void fetchTechNewsDailyAt10AM() {
         blogService.fetchAndSaveTechNews();
     }
 
