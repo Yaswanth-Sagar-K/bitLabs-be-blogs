@@ -1,7 +1,6 @@
 package com.talentstream.config;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -25,23 +24,19 @@ public class FirebaseConfig {
             return;
         }
 
-        InputStream serviceAccount;
-
-       
         String firebaseJson = System.getenv(ENV_FIREBASE_SECRET);
-        if (StringUtils.hasText(firebaseJson)) {
-            serviceAccount = new ByteArrayInputStream(firebaseJson.getBytes());
-            System.out.println("🔒 Using Firebase credentials from environment variable");
-        } else {
-            serviceAccount = new FileInputStream("src/main/resources/firebase-services-account.json");
-            System.out.println("💻 Using Firebase credentials from local file");
+        if (!StringUtils.hasText(firebaseJson)) {
+            throw new IllegalStateException(
+                "Firebase secret is missing! Please set the environment variable: " + ENV_FIREBASE_SECRET
+            );
         }
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build();
-
-        FirebaseApp.initializeApp(options);
-        System.out.println("✅ Firebase initialized successfully!");
+        try (InputStream serviceAccount = new ByteArrayInputStream(firebaseJson.getBytes())) {
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+            FirebaseApp.initializeApp(options);
+            System.out.println("✅ Firebase initialized successfully from environment variable!");
+        }
     }
 }
